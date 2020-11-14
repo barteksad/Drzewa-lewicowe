@@ -1,10 +1,12 @@
-type node = 
-    Node of int*int;; 
+type 'a node = 
+    Node of 'a*int;; 
      (* wartość, ile takich elementów *)
 
-type queue  = 
+exception Empty;;
+
+type 'a queue  = 
     Pusta |
-    Korzen of queue * node * queue * int;; 
+    Korzen of 'a queue * 'a node * 'a queue * int;; 
     (* lewy syn, ten element, prayw syn, długośc ścierzki do najbliższego liścia po prawej *)
 
 let empty = 
@@ -30,7 +32,9 @@ let rec join l r =
     | Korzen (lleft,Node(lval,lcount),lright,lrlp),
       Korzen (rleft,Node(rval,rcount),rright,rrlp) 
       when lval = rval -> 
-        Korzen(rleft,Node(rval,rcount+1),rright,rrlp)
+        if lleft = Pusta && lright = Pusta
+          then Korzen(rleft,Node(rval,rcount+1),rright,rrlp)
+        else Korzen(lleft,Node(lval,lcount+1),lright,lrlp)
 
     (*2. Dodajemy zupełnie nowy element *)
             
@@ -48,7 +52,7 @@ let rec join l r =
         let _,_,_,nowe_lewe_rlp = unpack lleft in
         let Korzen(npleft,npnode,npright,nrlp)  = join lright r 
         in
-        if nrlp < nowe_lewe_rlp 
+        if nrlp <= nowe_lewe_rlp 
           then Korzen(lleft,Node(lval,lcount),Korzen(npleft,npnode,npright,nrlp),nrlp +1)
         else
           Korzen(Korzen(npleft,npnode,npright,nrlp),Node(lval,lcount),lleft,nowe_lewe_rlp+1)
@@ -56,10 +60,20 @@ let rec join l r =
     (* b) tak samo tylko zamieniamy lewą z prawą *)
     | Korzen (lleft,Node(lval,lcount),lright,lrlp),
       Korzen (rleft,Node(rval,rcount),rright,rrlp) ->
+      (* let a = print_int (3) in *)
       join r l;;
 
+let add e q = 
+  join (Korzen(Pusta,Node(e,1),Pusta,0)) q;;
 
 
+let delete_min q = 
+  match q with
+  | Pusta -> raise Empty
+  | _ -> let (l,n,r,rlp) = unpack q in
+    match n with
+    | Node(value,1) -> value, (join l r)
+    | Node(value,greater_than_one) -> value, Korzen(l,Node(value,greater_than_one-1),r,rlp);; 
 
         
 
