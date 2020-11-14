@@ -1,0 +1,1 @@
+Projek na labolatorium. Implementacja kolejki prioryteotwej przy użyciu drzew lewicowych.
