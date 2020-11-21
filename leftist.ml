@@ -50,7 +50,6 @@ let rec join l r =
     (* b) tak samo tylko zamieniamy lewą z prawą *)
     | Korzen (lleft,lval,lright,lrlp),
       Korzen (rleft,rval,rright,rrlp) ->
-      (* let a = print_int (3) in *)
       join r l;;
 
 let add e q = 
